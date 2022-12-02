@@ -1,0 +1,29 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80%;
+  margin: 0 auto;
+  color: #979797;
+}
+
+.pageHeader,
+th {
+  color: #00497b;
+}
+
+.tableContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.ratesContainer {
+  background-color: #f1f5f8;
+  margin-top: 20px;
+}
+
+span {
+  font-size: 14px;
+}

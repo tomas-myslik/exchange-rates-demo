@@ -1,0 +1,40 @@
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 5px;
+  padding: 0 70px 20px 70px;
+}
+
+th,
+td {
+  text-align: center;
+  padding: 7px;
+}
+
+tbody > tr {
+  background-color: #d6e9f4;
+  margin: 3px 0;
+}
+
+tbody > tr:hover {
+  background-color: #00497b;
+  color: white;
+}
+
+.favoriteAction {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.positive,
+.negative {
+  font-weight: bolder;
+}
+
+.positive {
+  color: #5cab7b;
+}
+
+.negative {
+  color: #e16474;
+}
