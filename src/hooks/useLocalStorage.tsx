@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useState } from "react";
 
 const useLocalStorage = <T extends unknown>(key: string, initialValue: T) => {
   const [value, setValue] = useState<T>(() => {
@@ -12,19 +12,16 @@ const useLocalStorage = <T extends unknown>(key: string, initialValue: T) => {
     }
   });
 
-  const save = useCallback(
-    (next: any) => {
-      try {
-        setValue(next);
-        window.localStorage.setItem(key, JSON.stringify(next));
-      } catch (e) {
-        console.error(e);
-      }
-    },
-    [key]
-  );
+  const save = (next: T) => {
+    try {
+      setValue(next);
+      window.localStorage.setItem(key, JSON.stringify(next));
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
-  return useMemo(() => ({ value, save }), [value, save]);
+  return { value, save };
 };
 
 export default useLocalStorage;

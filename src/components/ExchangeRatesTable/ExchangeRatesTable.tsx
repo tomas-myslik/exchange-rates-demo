@@ -1,29 +1,33 @@
-import { FC, ReactNode } from 'react';
-import './ExchangeRatesTable.css';
-import PredicateButtons from '../PredicateButtons/PredicateButtons';
-import { ExchangeRatesType, FavoriteAction } from '../../hooks/useExchangeRates';
-import useQueryPredicate from '../../hooks/useQueryPredicate';
-import { calculatePrediction, calculateRemainder, isPositive } from '../../utils';
+import { FC, ReactNode, useContext } from "react";
+import "./ExchangeRatesTable.css";
+import PredicateButtons from "../PredicateButtons/PredicateButtons";
+import useQueryPredicate from "../../hooks/useQueryPredicate";
+import {
+  calculatePrediction,
+  calculateRemainder,
+  isPositive,
+} from "../../utils";
+import { ExchangeRatesType } from "../../types";
+import { AppContext } from "../../context/App";
 
 const columns = [
-  { label: 'Měna' },
-  { label: 'Země' },
-  { label: 'Nákup' },
-  { label: 'Prodej' },
-  { label: 'ČNB' },
-  { label: 'Předpoklad' },
-  { label: 'Změna / 1 den' },
-  { label: 'Možnosti' },
+  { label: "Měna" },
+  { label: "Země" },
+  { label: "Nákup" },
+  { label: "Prodej" },
+  { label: "ČNB" },
+  { label: "Předpoklad" },
+  { label: "Změna / 1 den" },
+  { label: "Možnosti" },
 ];
 
 type Props = {
-  data: Array<ExchangeRatesType>;
-  handleFavorite: FavoriteAction;
+  data: ExchangeRatesType[];
   showPredicate?: boolean;
 };
 
-const TableRow: FC<{ key?: string | number; children: ReactNode }> = ({ key, children }) => (
-  <tr key={key ? `row-${key}` : undefined}>{children}</tr>
+const TableRow: FC<{ children: ReactNode }> = ({ children }) => (
+  <tr>{children}</tr>
 );
 
 const Cell: FC<{ children: ReactNode }> = ({ children }) => (
@@ -32,7 +36,10 @@ const Cell: FC<{ children: ReactNode }> = ({ children }) => (
   </td>
 );
 
-const NameCell: FC<{ shortName: string; name: string }> = ({ shortName, name }) => (
+const NameCell: FC<{ shortName: string; name: string }> = ({
+  shortName,
+  name,
+}) => (
   <Cell>
     {shortName} {name}
   </Cell>
@@ -40,7 +47,11 @@ const NameCell: FC<{ shortName: string; name: string }> = ({ shortName, name }) 
 
 const formatDecimal = (n: number) => n.toFixed(3);
 
-const PredicateCells: FC<{ cnb: number; predicate: number; move: number }> = ({ cnb, predicate, move }) => {
+const PredicateCells: FC<{ cnb: number; predicate: number; move: number }> = ({
+  cnb,
+  predicate,
+  move,
+}) => {
   const positive = isPositive(move);
   const totalRemainder = calculateRemainder(cnb, move, predicate);
   const prediction = calculatePrediction(cnb, move, totalRemainder);
@@ -49,8 +60,8 @@ const PredicateCells: FC<{ cnb: number; predicate: number; move: number }> = ({ 
     <>
       <Cell>{formatDecimal(prediction)}</Cell>
       <td>
-        <span className={positive ? 'positive' : 'negative'}>
-          {positive ? '+' : '-'}
+        <span className={positive ? "positive" : "negative"}>
+          {positive ? "+" : "-"}
           {formatDecimal(totalRemainder)}
         </span>
       </td>
@@ -58,15 +69,26 @@ const PredicateCells: FC<{ cnb: number; predicate: number; move: number }> = ({ 
   );
 };
 
-const OptionsCell: FC<{ item: ExchangeRatesType; onFavoriteChange: (item: ExchangeRatesType) => void }> = ({ item, onFavoriteChange }) => (
-  <td>
-    <span className="favoriteAction" onClick={() => onFavoriteChange(item)}>
-      {item.favorite ? 'Zrušit' : 'Oblíbená'}
-    </span>
-  </td>
-);
+const OptionsCell: FC<{ item: ExchangeRatesType }> = ({ item }) => {
+  const { addFavorite, removeFavorite, favorites } = useContext(AppContext);
+  const isFavorite = favorites.indexOf(item.shortName) > -1;
+  return (
+    <td>
+      <span
+        className="favoriteAction"
+        onClick={() =>
+          isFavorite
+            ? removeFavorite(item.shortName)
+            : addFavorite(item.shortName)
+        }
+      >
+        {isFavorite ? "Zrušit" : "Oblíbené"}
+      </span>
+    </td>
+  );
+};
 
-const ExchangeRatesTable = ({ data, handleFavorite, showPredicate = false }: Props) => {
+const ExchangeRatesTable = ({ data, showPredicate = false }: Props) => {
   const { predicate, updatePredicate } = useQueryPredicate();
 
   return (
@@ -88,8 +110,12 @@ const ExchangeRatesTable = ({ data, handleFavorite, showPredicate = false }: Pro
               <Cell>{item.buy}</Cell>
               <Cell>{item.sell}</Cell>
               <Cell>{item.cnb}</Cell>
-              <PredicateCells cnb={item.cnb} predicate={predicate} move={item.move} />
-              <OptionsCell item={item} onFavoriteChange={handleFavorite} />
+              <PredicateCells
+                cnb={item.cnb}
+                move={item.move}
+                predicate={predicate}
+              />
+              <OptionsCell item={item} />
             </TableRow>
           ))}
         </tbody>
